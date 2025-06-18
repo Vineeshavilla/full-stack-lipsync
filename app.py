@@ -10,11 +10,21 @@ import subprocess
 import shutil
 from pathlib import Path
 import time
+import asyncio
+import nest_asyncio
+import sys
+
+# Configure asyncio for Windows
+if sys.platform == 'win32':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+# Apply nest_asyncio to allow nested event loops
+nest_asyncio.apply()
 
 # Set page config
 st.set_page_config(
     page_title="Wav2Lip - Lip Sync",
-    page_icon="��",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded"
 )
