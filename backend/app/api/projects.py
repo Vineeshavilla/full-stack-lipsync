@@ -20,7 +20,7 @@ async def create_project(
     *,
     db: Session = Depends(get_db),
     name: str = Form(...),
-    description: str = Form(...),
+    description: str = Form(""),  # Made optional with default empty string
     use_gan_model: str = Form("true"),  # Form data comes as string
     video: UploadFile = File(...),
     audio: UploadFile = File(...),

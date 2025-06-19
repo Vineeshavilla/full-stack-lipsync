@@ -6,8 +6,9 @@ import {
   Paper,
   CircularProgress,
   IconButton,
+  Chip,
 } from '@mui/material';
-import { CloudUpload, Delete } from '@mui/icons-material';
+import { CloudUpload, Delete, VideoLibrary, Audiotrack } from '@mui/icons-material';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;

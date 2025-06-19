@@ -1,9 +1,8 @@
 import React from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   AppBar,
-  Box,
   Toolbar,
   Typography,
   Button,
@@ -11,8 +10,16 @@ import {
   Menu,
   MenuItem,
   Avatar,
+  Box,
 } from '@mui/material';
-import { AccountCircle, Menu as MenuIcon } from '@mui/icons-material';
+import {
+  AccountCircle,
+  Login as LoginIcon,
+  PersonAdd as RegisterIcon,
+  Logout as LogoutIcon,
+  Dashboard as DashboardIcon,
+  Add as AddIcon,
+} from '@mui/icons-material';
 import { RootState } from '../../store';
 import { logout } from '../../store/slices/authSlice';
 
@@ -37,10 +44,16 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <AppBar position="static">
-      <Toolbar>
+    <AppBar 
+      position="static" 
+      sx={{ 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
+      }}
+    >
+      <Toolbar sx={{ px: 3 }}>
         <Typography
-          variant="h6"
+          variant="h5"
           component={RouterLink}
           to="/"
           sx={{
@@ -49,26 +62,64 @@ const Navbar: React.FC = () => {
             color: 'inherit',
             display: 'flex',
             alignItems: 'center',
+            fontWeight: 'bold',
+            fontSize: '1.5rem',
+            '&:hover': {
+              opacity: 0.9,
+            }
           }}
         >
-          LipSync AI
+          🎬 LipSync AI
         </Typography>
 
         {isAuthenticated ? (
-          <>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Button
-              color="inherit"
+              variant="outlined"
+              startIcon={<DashboardIcon />}
               component={RouterLink}
               to="/dashboard"
-              sx={{ mr: 2 }}
+              sx={{ 
+                color: 'white',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                borderRadius: 2,
+                px: 3,
+                py: 1,
+                fontWeight: 'bold',
+                textTransform: 'none',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  transform: 'translateY(-1px)',
+                }
+              }}
             >
               Dashboard
             </Button>
             <Button
-              color="inherit"
+              variant="contained"
+              startIcon={<AddIcon />}
               component={RouterLink}
               to="/projects/create"
-              sx={{ mr: 2 }}
+              sx={{ 
+                background: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                color: 'white',
+                borderRadius: 2,
+                px: 3,
+                py: 1,
+                fontWeight: 'bold',
+                textTransform: 'none',
+                boxShadow: '0 4px 15px rgba(255, 255, 255, 0.2)',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.3)',
+                  boxShadow: '0 6px 20px rgba(255, 255, 255, 0.3)',
+                  transform: 'translateY(-1px)',
+                }
+              }}
             >
               New Project
             </Button>
@@ -78,10 +129,24 @@ const Navbar: React.FC = () => {
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleMenu}
-              color="inherit"
+              sx={{
+                color: 'white',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  transform: 'scale(1.05)',
+                }
+              }}
             >
               {user?.username ? (
-                <Avatar sx={{ width: 32, height: 32 }}>
+                <Avatar sx={{ 
+                  width: 32, 
+                  height: 32,
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  fontWeight: 'bold',
+                }}>
                   {user.username[0].toUpperCase()}
                 </Avatar>
               ) : (
@@ -102,19 +167,87 @@ const Navbar: React.FC = () => {
               }}
               open={Boolean(anchorEl)}
               onClose={handleClose}
+              PaperProps={{
+                sx: {
+                  mt: 1,
+                  borderRadius: 2,
+                  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                }
+              }}
             >
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              <MenuItem 
+                onClick={handleLogout}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  py: 1.5,
+                  px: 2,
+                  fontWeight: 'bold',
+                  color: '#d32f2f',
+                  '&:hover': {
+                    backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                  }
+                }}
+              >
+                <LogoutIcon fontSize="small" />
+                Logout
+              </MenuItem>
             </Menu>
-          </>
+          </Box>
         ) : (
-          <>
-            <Button color="inherit" component={RouterLink} to="/login">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Button 
+              variant="outlined"
+              startIcon={<LoginIcon />}
+              component={RouterLink} 
+              to="/login"
+              sx={{ 
+                color: 'white',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                borderRadius: 2,
+                px: 3,
+                py: 1,
+                fontWeight: 'bold',
+                textTransform: 'none',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  transform: 'translateY(-1px)',
+                }
+              }}
+            >
               Login
             </Button>
-            <Button color="inherit" component={RouterLink} to="/register">
+            <Button 
+              variant="contained"
+              startIcon={<RegisterIcon />}
+              component={RouterLink} 
+              to="/register"
+              sx={{ 
+                background: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                color: 'white',
+                borderRadius: 2,
+                px: 3,
+                py: 1,
+                fontWeight: 'bold',
+                textTransform: 'none',
+                boxShadow: '0 4px 15px rgba(255, 255, 255, 0.2)',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.3)',
+                  boxShadow: '0 6px 20px rgba(255, 255, 255, 0.3)',
+                  transform: 'translateY(-1px)',
+                }
+              }}
+            >
               Register
             </Button>
-          </>
+          </Box>
         )}
       </Toolbar>
     </AppBar>

@@ -7,13 +7,25 @@ import {
   Button,
   Card,
   CardContent,
-  CardActions,
   CircularProgress,
   Alert,
   LinearProgress,
   Chip,
+  Container,
+  Paper,
+  Divider,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+import {
+  Add as AddIcon,
+  VideoLibrary as VideoIcon,
+  PlayArrow as PlayIcon,
+  CheckCircle as CheckIcon,
+  Error as ErrorIcon,
+  Schedule as PendingIcon,
+  Star as GanIcon,
+  Speed as SpeedIcon,
+  Description as DescIcon,
+} from '@mui/icons-material';
 import { RootState } from '../store';
 import { projectService } from '../services/api';
 import {
@@ -106,10 +118,24 @@ const Dashboard: React.FC = () => {
   }, [projects]);
 
   const handleProjectClick = (projectId: number) => {
+    console.log('Project clicked:', projectId);
     const project = projects.find(p => p.id === projectId);
     if (project) {
+      console.log('Found project:', project);
       dispatch(setCurrentProject(project));
       navigate(`/projects/${projectId}`);
+    } else {
+      console.error('Project not found:', projectId);
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed': return <CheckIcon color="success" />;
+      case 'failed': return <ErrorIcon color="error" />;
+      case 'processing': return <PlayIcon color="warning" />;
+      case 'pending': return <PendingIcon color="info" />;
+      default: return <VideoIcon />;
     }
   };
 
@@ -134,26 +160,89 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">My Projects</Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => navigate('/projects/create')}
-        >
-          New Project
-        </Button>
-      </Box>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* Header Section */}
+      <Paper elevation={3} sx={{ 
+        p: 4, 
+        mb: 4, 
+        borderRadius: 3,
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white'
+      }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box>
+            <Typography variant="h3" gutterBottom sx={{ fontWeight: 'bold' }}>
+              My Lip Sync Projects
+            </Typography>
+            <Typography variant="h6" sx={{ opacity: 0.9 }}>
+              {projects.length} project{projects.length !== 1 ? 's' : ''} • {projects.filter(p => p.status === 'completed').length} completed
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/projects/create')}
+            sx={{
+              py: 2,
+              px: 4,
+              borderRadius: 3,
+              fontSize: '1.1rem',
+              fontWeight: 'bold',
+              textTransform: 'none',
+              background: 'rgba(255, 255, 255, 0.2)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              color: 'white',
+              boxShadow: '0 8px 25px rgba(255, 255, 255, 0.2)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                background: 'rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 12px 35px rgba(255, 255, 255, 0.3)',
+                transform: 'translateY(-2px)',
+                border: '1px solid rgba(255, 255, 255, 0.5)',
+              },
+              '&:active': {
+                transform: 'translateY(0)',
+              }
+            }}
+          >
+            🚀 Create New Project
+          </Button>
+        </Box>
+      </Paper>
+
+      {/* Content Section */}
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <CircularProgress />
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
+          <CircularProgress size={60} />
         </Box>
       ) : error ? (
-        <Alert severity="error">{error}</Alert>
+        <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>
       ) : projects.length === 0 ? (
-        <Typography variant="body1">You have no projects yet. Click "New Project" to get started!</Typography>
+        <Paper elevation={2} sx={{ p: 8, textAlign: 'center', borderRadius: 3 }}>
+          <VideoIcon sx={{ fontSize: 80, color: 'text.secondary', mb: 2 }} />
+          <Typography variant="h5" gutterBottom color="text.secondary">
+            No Projects Yet
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            Start creating amazing lip sync videos by uploading your first project!
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/projects/create')}
+            sx={{ 
+              borderRadius: 2,
+              px: 4,
+              py: 1.5,
+              background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+            }}
+          >
+            Create Your First Project
+          </Button>
+        </Paper>
       ) : (
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
           {projects.map((project) => {
@@ -161,78 +250,99 @@ const Dashboard: React.FC = () => {
             const isProcessing = project.status === 'processing' || project.status === 'pending';
             
             return (
-              <Card
-                key={project.id}
-                sx={{ height: '100%' }}
-              >
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {project.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    {project.description}
-                  </Typography>
-                  
-                  {/* Status Chip */}
-                  <Box sx={{ mb: 2 }}>
-                    <Chip 
-                      label={getStatusLabel(project.status)} 
-                      color={getStatusColor(project.status) as any}
-                      size="small"
-                    />
-                    {project.use_gan_model !== undefined && (
-                      <Chip 
-                        label={project.use_gan_model ? 'GAN' : 'Standard'} 
-                        color="primary" 
-                        variant="outlined"
-                        size="small"
-                        sx={{ ml: 1 }} 
-                      />
-                    )}
-                  </Box>
+              <Box key={project.id}>
+                <Card
+                  elevation={4}
+                  sx={{ 
+                    height: '100%',
+                    borderRadius: 3,
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      transform: 'translateY(-4px)',
+                      boxShadow: 8,
+                    }
+                  }}
+                  onClick={() => handleProjectClick(project.id)}
+                >
+                  <CardContent sx={{ p: 3 }}>
+                    {/* Project Header */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      {getStatusIcon(project.status)}
+                      <Typography variant="h6" sx={{ ml: 1, fontWeight: 'bold' }}>
+                        {project.name}
+                      </Typography>
+                    </Box>
 
-                  {/* Progress Bar for Processing Projects */}
-                  {isProcessing && progress && (
-                    <Box sx={{ mb: 2 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography variant="caption" color="text.secondary">
-                          {progress.step}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {progress.progress}%
+                    {/* Description */}
+                    {project.description && (
+                      <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
+                        <DescIcon sx={{ fontSize: 16, color: 'text.secondary', mr: 1, mt: 0.2 }} />
+                        <Typography variant="body2" color="text.secondary" sx={{ flex: 1 }}>
+                          {project.description}
                         </Typography>
                       </Box>
-                      <LinearProgress 
-                        variant="determinate" 
-                        value={progress.progress} 
-                        sx={{ height: 6, borderRadius: 3 }}
+                    )}
+
+                    <Divider sx={{ my: 2 }} />
+
+                    {/* Status and Model Chips */}
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                      <Chip 
+                        label={getStatusLabel(project.status)} 
+                        color={getStatusColor(project.status) as any}
+                        size="small"
+                        icon={getStatusIcon(project.status)}
                       />
+                      {project.use_gan_model !== undefined && (
+                        <Chip 
+                          label={project.use_gan_model ? 'GAN Model' : 'Standard Model'} 
+                          color="primary" 
+                          variant="outlined"
+                          size="small"
+                          icon={project.use_gan_model ? <GanIcon /> : <SpeedIcon />}
+                        />
+                      )}
                     </Box>
-                  )}
 
-                  {/* Processing Info */}
-                  {isProcessing && (
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-                      Processing may take 10-45 minutes
+                    {/* Progress Bar for Processing Projects */}
+                    {isProcessing && progress && (
+                      <Box sx={{ mb: 2 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                          <Typography variant="caption" color="text.secondary">
+                            {progress.step}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {progress.progress}%
+                          </Typography>
+                        </Box>
+                        <LinearProgress 
+                          variant="determinate" 
+                          value={progress.progress}
+                          sx={{ 
+                            height: 8, 
+                            borderRadius: 4,
+                            backgroundColor: 'rgba(0,0,0,0.1)',
+                            '& .MuiLinearProgress-bar': {
+                              borderRadius: 4,
+                            }
+                          }}
+                        />
+                      </Box>
+                    )}
+
+                    {/* Created Date */}
+                    <Typography variant="caption" color="text.secondary">
+                      Created: {new Date(project.created_at).toLocaleDateString()}
                     </Typography>
-                  )}
-
-                  {/* Created Date */}
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                    Created: {new Date(project.created_at).toLocaleDateString()}
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <Button size="small" onClick={() => handleProjectClick(project.id)}>
-                    View Details
-                  </Button>
-                </CardActions>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Box>
             );
           })}
         </Box>
       )}
-    </Box>
+    </Container>
   );
 };
 
